@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  mirror-price-server:
+    image: mirror-price-server
+    env_file: price-server.env
+    networks:
+      - localterra_terra
+    ports:
+      - 8531:8531
+  mirror-feeder:
+    depends_on:
+      - mirror-price-server
+    image: mirror-feeder
+    env_file: feeder.env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localterra_terra
+  mirror-postgres:
+    image: postgres:11
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - localterra_terra
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+  mirror-graph:
+    depends_on:
+      - mirror-postgres
+    image: mirror-graph
+    env_file: graph.env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localterra_terra
+    ports:
+      - 3858:3858
+  mirror-collector:
+    depends_on:
+      - mirror-graph
+    image: mirror-graph
+    env_file: graph.env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localterra_terra
+    command: collect
+  mirror-bot:
+    depends_on:
+      - mirror-graph
+    image: mirror-graph
+    env_file: graph.env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localterra_terra
+    command: bot
+  mirror-admin-server:
+    depends_on:
+      - mirror-graph
+    image: mirror-admin-server
+    env_file: admin-server.env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - localterra_terra
+    ports:
+      - 5853:5853
+
+networks:
+  localterra_terra:
+    external: true

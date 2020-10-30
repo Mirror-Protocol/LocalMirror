@@ -1,0 +1,2 @@
+CREATE DATABASE mirror;
+CREATE DATABASE mirror_admin;
