@@ -10,6 +10,8 @@ LocalMirror is a complete Mirror suite containerized with Docker and orchestrate
 ## How to run
 Copy *.json from mirror-cli/data to data directory
 
+> Run LocalTerra first
+
 ```sh
 docker-compose up
 ```
